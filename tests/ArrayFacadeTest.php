@@ -1,15 +1,12 @@
 <?php
 
-namespace ArrayFacade\Tests;
+namespace Indibit\Tests;
 
 use PHPUnit\Framework\TestCase;
-use ArrayFacade\ArrayFacade as A;
+use Indibit\ArrayFacade as A;
 
 class ArrayFacadeTest extends TestCase
 {
-    public function testFlatMap(): void {
-        echo A::of([ 1,2,3 ])->flatMap(fn ($x) => [$x, $x]);
-    }
 
     public function testSum(): void
     {
@@ -28,7 +25,6 @@ class ArrayFacadeTest extends TestCase
                 ['id' => 5, 'parent' => ['id' => 1]]
             ]
         )->toGraph('id', 'parent', 'children');
-        echo $g1;
         /*
          * [
          *   { id: 1, children: [ { id: 5 } ],
@@ -41,64 +37,6 @@ class ArrayFacadeTest extends TestCase
          */
         $this->assertEquals(5, $g1[0]['children'][0]['id']);
         $this->assertEquals(4 ,$g1[1]['children'][0]['children'][0]['id']);
-    }
-
-    public function testToGraphPropertyMissing(): void
-    {
-        $this->expectException('Exception');
-
-        A::of(
-            [
-                ['id' => 1, 'parent' => null],
-                ['id' => 3],                        // parent fehlt
-                ['id' => 3, 'parent' => null],
-                ['id' => 4, 'parent' => ['id' => 2]],
-                ['id' => 5, 'parent' => ['id' => 1]]
-            ]
-        )->toGraph('id', 'parent', 'children');
-    }
-
-    public function testToGraphElementMissing(): void {
-        $this->expectException('Exception');
-
-        A::of(
-            [
-                ['id' => 1, 'parent' => null],
-                /* 3 fehlt */
-                ['id' => 3, 'parent' => null],
-                ['id' => 4, 'parent' => ['id' => 2]],
-                ['id' => 5, 'parent' => ['id' => 1]]
-            ]
-        )->toGraph('id', 'parent', 'children');
-    }
-
-    public function testFilterAssoc(): void
-    {
-        $a = A::of([
-            'a' => 1,
-            'b' => 2
-        ]);
-        $b = $a->filter(function (int $v, string $k) {
-            echo "$k: $v\n";
-            return true;
-        }, true);
-        echo $b;
-    }
-
-    public function testConcat(): void
-    {
-        echo A::of([
-            ['id' => 1, 'x' => 'a'],
-            ['id' => 2, 'x' => 'b']
-        ])
-            ->concat(A::of([
-                ['id' => 2]
-            ]));
-    }
-
-    public function testConcatAssoc(): void
-    {
-        echo A::of(['a' => 1])->concat(A::of(['b' => 2]));
     }
 
     public function testIsArray(): void
@@ -189,7 +127,8 @@ class ArrayFacadeTest extends TestCase
     public function testHead(): void
     {
         self::assertEquals(4711, A::of([4711, 4712])->head()->get());
-        self::assertEquals(null, A::of(['abc' => 4711])->head()->get());
+        self::expectError();
+        A::of(['abc' => 4711])->head()->get();
     }
 
     public function testMinBy(): void

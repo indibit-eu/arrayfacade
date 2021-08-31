@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ArrayFacade;
+namespace Indibit;
 
 use ArrayAccess;
 use ArrayIterator;
