@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Indibit\Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -7,11 +9,57 @@ use Indibit\ArrayFacade as A;
 
 class ArrayFacadeTest extends TestCase
 {
+    /**
+     * Built-in empty() does not work on ArrayFacade objects
+     */
+    public function testBuiltinEmptyNotWorking(): void
+    {
+        self::assertFalse(empty(A::ofEmpty()));
+    }
+
+    /**
+     * Built-in is_array() does not work on ArrayFacade objects
+     */
+    public function testBuiltinIsArrayNotWorking(): void
+    {
+        self::assertFalse(is_array(A::of([1,2,3])));
+    }
+
+    public function testBuiltinCount(): void
+    {
+        self::assertEquals(3, count(A::of([1,2,3])));
+    }
+
+    public function testOfArrayFacade(): void
+    {
+        $a = A::of(A::of([1,2,3]));
+        self::assertEquals(3, $a->count());
+        self::assertEquals(1, $a[0]);
+        self::assertEquals(2, $a[1]);
+        self::assertEquals(3, $a[2]);
+    }
+
+    public function testOfElement(): void
+    {
+        $a = A::ofElement(4711);
+        self::assertEquals(1, $a->count());
+        self::assertEquals(4711, $a[0]);
+    }
+
+    public function testFlatMap(): void
+    {
+        $a = A::of([1, 2])->flatMap(fn ($x) => [$x, $x]);
+        self::assertEquals(4, $a->count());
+        self::assertEquals(1, $a[0]);
+        self::assertEquals(1, $a[1]);
+        self::assertEquals(2, $a[2]);
+        self::assertEquals(2, $a[3]);
+    }
 
     public function testSum(): void
     {
-        $this->assertEquals(6, A::of([1, 2, 3])->sum()->get());
-        $this->assertEquals(6.3, A::of([1.1, 2.1, 3.1])->sum()->get());
+        self::assertEquals(6, A::of([1, 2, 3])->sum()->get());
+        self::assertEquals(6.3, A::of([1.1, 2.1, 3.1])->sum()->get());
     }
 
     public function testToGraph(): void
@@ -36,7 +84,7 @@ class ArrayFacadeTest extends TestCase
          * ]
          */
         $this->assertEquals(5, $g1[0]['children'][0]['id']);
-        $this->assertEquals(4 ,$g1[1]['children'][0]['children'][0]['id']);
+        $this->assertEquals(4, $g1[1]['children'][0]['children'][0]['id']);
     }
 
     public function testIsArray(): void
@@ -99,15 +147,18 @@ class ArrayFacadeTest extends TestCase
         self::assertTrue(
             A::of([['a' => 1], ['a' => 2]])
                 ->map('a')
-                ->equals(A::of([1, 2])));
+                ->equals(A::of([1, 2]))
+        );
         self::assertTrue(
             A::of([['a' => ['b' => 1]], ['a' => ['b' => 2]]])
                 ->map('a.b')
-                ->equals(A::of([1, 2])));
+                ->equals(A::of([1, 2]))
+        );
         self::assertTrue(
             A::of([['a' => ['b' => ['c' => 1]]], ['a' => ['b' => ['c' => 2]]]])
                 ->map('a.b.c')
-                ->equals(A::of([1, 2])));
+                ->equals(A::of([1, 2]))
+        );
     }
 
     public function testGroupByPath(): void
@@ -161,5 +212,4 @@ class ArrayFacadeTest extends TestCase
         self::assertEquals(1, $a[1]['id']);
         self::assertEquals(0, $a[2]['id']);
     }
-
 }

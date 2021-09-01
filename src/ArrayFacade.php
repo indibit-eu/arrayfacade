@@ -17,11 +17,8 @@ use JsonSerializable;
 use Traversable;
 
 /**
- * Wrap PHP's built-in array functions, extend them and support a function, object-oriented style.
- *
- * https://github.com/voku/Arrayy and https://github.com/bocharsky-bw/Arrayzy lack keyBy(),
- * groupBy(), map() etc.
- * https://github.com/me-io/php-lodash and https://github.com/lodash-php/lodash-php lack the oo style
+ * Wraps PHP's built-in array functions, extends them and supports a functional, object-oriented style inspired by
+ * Lodash
  *
  * IMPORTANT: empty(), is_array() and the array_...() functions cannot be called on instances of ArrayFacade
  */
