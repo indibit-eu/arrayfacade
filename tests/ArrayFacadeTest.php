@@ -212,4 +212,20 @@ class ArrayFacadeTest extends TestCase
         self::assertEquals(1, $a[1]['id']);
         self::assertEquals(0, $a[2]['id']);
     }
+
+    public function testDifferenceBy(): void
+    {
+        $a = A::of([
+            ['id' => 'a'],
+            ['id' => 'b'],
+            ['id' => 'c']
+        ]);
+        $b = A::of([
+            ['id' => 'b']
+        ]);
+        $r = $a->differenceBy($b, 'id');
+        self::assertEquals(2, $r->count());
+        self::assertEquals('a', $r[0]['id']);
+        self::assertEquals('c', $r[1]['id']);
+    }
 }

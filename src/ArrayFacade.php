@@ -191,6 +191,30 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
     }
 
     /**
+     * $iteratee wird auf jedes Element angewendet, um das Kriterium für den Vergleich zu bilden
+     *
+     * @param ArrayFacade $other
+     * @param callable|string $iteratee
+     * @return $this
+     */
+    public function differenceBy(ArrayFacade $other, callable|string $iteratee): self
+    {
+        $r = [];
+        if (is_string($iteratee)) {
+            $iteratee = self::property($iteratee);
+        } elseif (!is_callable($iteratee)) {
+            throw new Error();
+        }
+        $otherMapped = $other->map($iteratee);
+        foreach ($this->elements as $e) {
+            if (!$otherMapped->includes($iteratee($e))) {
+                $r[] = $e;
+            }
+        }
+        return new self($r);
+    }
+
+    /**
      * @param callable $iteratee
      * @return $this
      * TODO in forEach umbenennen
