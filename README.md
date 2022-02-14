@@ -3,6 +3,8 @@
 Wraps PHP's built-in array functions, extends them and supports a functional, object-oriented style inspired by 
 [Lodash](https://lodash.com/)
 
+https://packagist.org/packages/indibit-eu/arrayfacade
+
 ## Why another array wrapper?
 
 - [Arrayy](https://github.com/voku/Arrayy) and [Arrayzy](https://github.com/bocharsky-bw/Arrayzy) lack `keyBy()`, `groupBy()`, `map()` and more
