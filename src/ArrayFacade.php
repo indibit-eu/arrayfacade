@@ -815,7 +815,7 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         unset($this->elements[$offset]);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->elements;
     }
