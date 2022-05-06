@@ -149,7 +149,6 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
      *
      * @param int $chunkSize Größe der Teil-Arrays
      * @return $this
-     *
      */
     public function chunk(int $chunkSize): self
     {
@@ -158,12 +157,46 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
     }
 
     /**
+     * Schnittmenge mit einem anderen Array ermitteln, wobei die Elemente mit === verglichen werden
+     *
      * @param ArrayFacade $other
      * @return self
      */
     public function intersection(ArrayFacade $other): self
     {
-        return new self(array_intersect($this->elements, $other->elements));
+        /*
+         * array_intersect() erhält die Schlüssel, was in den meisten Fällen unerwartet ist
+         */
+        return new self(array_values(array_intersect($this->elements, $other->elements)));
+    }
+
+    /**
+     * Schnittmenge mit einem anderen Array ermitteln, wobei $iteratee auf jedes Element angewendet wird, um das
+     * Kriterium für den Vergleich zu ermitteln. Die resultierenden Elemente werden mit === verglichen.
+     *
+     * @param ArrayFacade $other
+     * @param callable|string $iteratee
+     * @return $this
+     */
+    public function intersectionBy(ArrayFacade $other, callable|string $iteratee): self
+    {
+        if (is_string($iteratee)) {
+            $iteratee = self::property($iteratee);
+        } elseif (!is_callable($iteratee)) {
+            throw new Error();
+        }
+        /*
+         * array_intersect() erhält die Schlüssel, was in den meisten Fällen unerwartet ist
+         */
+        return new self(
+            array_values(
+                array_uintersect(
+                    $this->elements,
+                    $other->elements,
+                    fn ($l, $r) => $iteratee($l) === $iteratee($r) ? 0 : 1
+                )
+            )
+        );
     }
 
     /**
@@ -173,7 +206,7 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
     public function difference(ArrayFacade $other): self
     {
         /*
-         * array_diff() alone would preserve the keys, which is a bit unexpected in most cases
+         * array_diff() erhält die Schlüssel, was in den meisten Fällen unerwartet ist
          */
         return new self(array_values(array_diff($this->elements, $other->elements)));
     }
@@ -186,7 +219,9 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
      */
     public function differenceWith(ArrayFacade $other, callable $comparator): self
     {
-        // TODO do we need array_values() here?
+        /*
+         * array_udiff() erhält die Schlüssel, was in den meisten Fällen unerwartet ist
+         */
         return new self(array_values(array_udiff($this->elements, $other->elements, $comparator)));
     }
 
@@ -217,7 +252,7 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
     /**
      * @param callable $iteratee
      * @return $this
-     * TODO in forEach umbenennen
+     * TODO in forEach/each umbenennen
      */
     public function walk(callable $iteratee): self
     {
@@ -245,13 +280,13 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         if (is_string($iteratee)) {
             $iteratee = self::property($iteratee);
         } elseif (!is_callable($iteratee)) {
-            throw new Error('Expected string or callable but got '.gettype($iteratee).(is_object($iteratee) ? (' of class '.get_class($iteratee)) : ''));
+            throw new Error();
         }
         $s = 0;
         foreach ($this->elements as $e) {
             $summand = $iteratee($e);
             if (!is_numeric($summand)) {
-                throw new Error('Expected numeric summand but got '.gettype($iteratee).(is_object($iteratee) ? (' of class '.get_class($iteratee)) : ''));
+                throw new Error();
             }
             $s += $summand;
         }

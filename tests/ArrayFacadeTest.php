@@ -228,4 +228,20 @@ class ArrayFacadeTest extends TestCase
         self::assertEquals('a', $r[0]['id']);
         self::assertEquals('c', $r[1]['id']);
     }
+
+    public function testIntersectionBy(): void
+    {
+        $a = A::of([
+            ['id' => 'a'],
+            ['id' => 'b'],
+            ['id' => 'c']
+        ]);
+        $b = A::of([
+            ['id' => 'b'],
+            ['id' => 'd'],
+        ]);
+        $r = $a->intersectionBy($b, 'id');
+        self::assertEquals(1, $r->count());
+        self::assertEquals('b', $r[0]['id']);
+    }
 }
