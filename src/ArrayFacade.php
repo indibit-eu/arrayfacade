@@ -313,7 +313,15 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
             : Optional::of(max($this->elements));
     }
 
+    public function min(): Optional
+    {
+        return $this->isEmpty()
+            ? Optional::empty()
+            : Optional::of(min($this->elements));
+    }
+
     /**
+     * WICHTIG: das Ergebnis des Prädikats muss sich in einen String casten lassen; minBy('someDateTime') geht also nicht!
      * @param $iteratee callable|string Prädikat
      * @return Optional der niedrigste Wert anhand des Prädikats
      */
