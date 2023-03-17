@@ -89,7 +89,7 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
             if (is_string($iteratee)) {
                 $iteratee = self::property($iteratee);
             } elseif (!is_callable($iteratee)) {
-                throw new Error();
+                throw new Error('Expected string or callable but got '.gettype($iteratee));
             }
         }
         $flattened = [];
@@ -115,7 +115,7 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         if (is_string($iteratee)) {
             $iteratee = self::property($iteratee);
         } elseif (!is_callable($iteratee)) {
-            throw new Error();
+            throw new Error('Expected string or callable but got '.gettype($iteratee));
         }
         /*
          * we can't use array_map() here, because it would return sequential integer keys when passing the keys as a
@@ -183,7 +183,7 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         if (is_string($iteratee)) {
             $iteratee = self::property($iteratee);
         } elseif (!is_callable($iteratee)) {
-            throw new Error();
+            throw new Error('Expected string or callable but got '.gettype($iteratee));
         }
         /*
          * array_intersect() erhält die Schlüssel, was in den meisten Fällen unerwartet ist
@@ -238,7 +238,7 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         if (is_string($iteratee)) {
             $iteratee = self::property($iteratee);
         } elseif (!is_callable($iteratee)) {
-            throw new Error();
+            throw new Error('Expected string or callable but got '.gettype($iteratee));
         }
         $otherMapped = $other->map($iteratee);
         foreach ($this->elements as $e) {
@@ -280,13 +280,13 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         if (is_string($iteratee)) {
             $iteratee = self::property($iteratee);
         } elseif (!is_callable($iteratee)) {
-            throw new Error();
+            throw new Error('Expected string or callable but got '.gettype($iteratee));
         }
         $s = 0;
         foreach ($this->elements as $e) {
             $summand = $iteratee($e);
             if (!is_numeric($summand)) {
-                throw new Error();
+                throw new Error('Expected numeric but got '.gettype($summand));
             }
             $s += $summand;
         }
@@ -333,7 +333,7 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         if (is_string($iteratee)) {
             $iteratee = self::property($iteratee);
         } elseif (!is_callable($iteratee)) {
-            throw new Error();
+            throw new Error('Expected string or callable but got '.gettype($iteratee));
         }
         /*
          * TODO sicher nicht der effizienteste Weg...
@@ -365,7 +365,7 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         if (is_string($iteratee)) {
             $iteratee = self::property($iteratee);
         } elseif (!is_callable($iteratee)) {
-            throw new Error();
+            throw new Error('Expected string or callable but got '.gettype($iteratee));
         }
         $uniq = self::ofEmpty();
         foreach ($this->elements as $element) {
@@ -559,6 +559,11 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         });
         return self::of($elements);
     }
+    
+    public function sort(): self
+    {
+        return $this->sortBy(self::identity());
+    }
 
     /**
      * Anhand der Werte filtern
@@ -573,7 +578,7 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         } elseif (is_string($predicate)) {
             $predicate = self::property($predicate);
         } elseif (!is_callable($predicate)) {
-            throw new Error();
+            throw new Error('Expected array, string or callable but got '.gettype($predicate));
         }
         /*
          * array_filter() retains the keys
@@ -801,7 +806,7 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         if (is_string($iteratee)) {
             $iteratee = self::property($iteratee);
         } elseif (!is_callable($iteratee)) {
-            throw new Error();
+            throw new Error('Expected string or callable but got '.gettype($iteratee));
         }
         $result = [];
         foreach ($this->elements as $element) {
