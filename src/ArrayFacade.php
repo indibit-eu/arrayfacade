@@ -11,9 +11,11 @@ use Countable;
 use Error;
 use Exception;
 use IteratorAggregate;
-use JJWare\Util\Optional;
+use PhpOption\None;
+use PhpOption\Option;
 use JsonException;
 use JsonSerializable;
+use PhpOption\Some;
 use Traversable;
 
 /**
@@ -270,12 +272,12 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
 
     /**
      * @param $iteratee callable|string
-     * @return Optional Summe der Elemente des Arrays, wobei die Funktion den zu addierenden Wert je Element produziert
+     * @return Option Summe der Elemente des Arrays, wobei die Funktion den zu addierenden Wert je Element produziert
      */
-    public function sumBy(callable|string $iteratee): Optional
+    public function sumBy(callable|string $iteratee): Option
     {
         if ($this->isEmpty()) {
-            return Optional::empty();
+            return None::create();
         }
         if (is_string($iteratee)) {
             $iteratee = self::property($iteratee);
@@ -290,45 +292,45 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
             }
             $s += $summand;
         }
-        return Optional::of($s);
+        return new Some($s);
     }
 
     /**
-     * @return Optional Summe der Werte
+     * @return Option Summe der Werte
      */
-    public function sum(): Optional
+    public function sum(): Option
     {
         return $this->isEmpty()
-            ? Optional::empty()
-            : Optional::of(array_sum($this->elements));
+            ? None::create()
+            : new Some(array_sum($this->elements));
     }
 
     /**
-     * @return Optional der höchste Wert
+     * @return Option der höchste Wert
      */
-    public function max(): Optional
+    public function max(): Option
     {
         return $this->isEmpty()
-            ? Optional::empty()
-            : Optional::of(max($this->elements));
+            ? None::create()
+            : new Some(max($this->elements));
     }
 
-    public function min(): Optional
+    public function min(): Option
     {
         return $this->isEmpty()
-            ? Optional::empty()
-            : Optional::of(min($this->elements));
+            ? None::create()
+            : new Some(min($this->elements));
     }
 
     /**
      * WICHTIG: das Ergebnis des Prädikats muss sich in einen String casten lassen; minBy('someDateTime') geht also nicht!
      * @param $iteratee callable|string Prädikat
-     * @return Optional der niedrigste Wert anhand des Prädikats
+     * @return Option der niedrigste Wert anhand des Prädikats
      */
-    public function minBy(callable|string $iteratee): Optional
+    public function minBy(callable|string $iteratee): Option
     {
         if ($this->isEmpty()) {
-            return Optional::empty();
+            return None::create();
         }
         if (is_string($iteratee)) {
             $iteratee = self::property($iteratee);
@@ -339,7 +341,7 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
          * TODO sicher nicht der effizienteste Weg...
          */
         $grouped = $this->groupBy($iteratee);
-        return Optional::of($grouped[min($grouped->keys()->toArray())][0]);
+        return new Some($grouped[min($grouped->keys()->toArray())][0]);
     }
 
     /**
@@ -406,9 +408,9 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
 
     /**
      * @param callable|array|string $predicate
-     * @return Optional
+     * @return Option
      */
-    public function find(callable|array|string $predicate): Optional
+    public function find(callable|array|string $predicate): Option
     {
         if (is_array($predicate)) {
             $predicate = self::matches($predicate);
@@ -419,17 +421,17 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         }
         foreach ($this->elements as $element) {
             if ($predicate($element)) {
-                return Optional::of($element);
+                return new Some($element);
             }
         }
-        return Optional::empty();
+        return None::create();
     }
 
     /**
      * @param callable|array|string $predicate
-     * @return Optional
+     * @return Option
      */
-    public function findByKey(callable|array|string $predicate): Optional
+    public function findByKey(callable|array|string $predicate): Option
     {
         if (is_array($predicate)) {
             $predicate = self::matches($predicate);
@@ -440,10 +442,10 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         }
         foreach ($this->elements as $key => $element) {
             if ($predicate($key)) {
-                return Optional::of($element);
+                return new Some($element);
             }
         }
-        return Optional::empty();
+        return None::create();
     }
 
     public function indexOf($value): ?int
@@ -709,14 +711,14 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
     }
 
     /**
-     * @return Optional
+     * @return Option
      */
-    public function head(): Optional
+    public function head(): Option
     {
         if ($this->isEmpty()) {
-            return Optional::empty();
+            return None::create();
         }
-        return Optional::of($this->elements[0]);
+        return new Some($this->elements[0]);
     }
 
     /**
@@ -881,21 +883,21 @@ class ArrayFacade implements ArrayAccess, JsonSerializable, Countable, IteratorA
         return $this->count() == 0;
     }
 
-    public function get($key): Optional
+    public function get($key): Option
     {
         return $this->containsKey($key)
-            ? Optional::of($this->elements[$key])
-            : Optional::empty();
+            ? new Some($this->elements[$key])
+            : None::create();
     }
 
     /**
-     * @return Optional zufälliges Element aus einer Liste
+     * @return Option zufälliges Element aus einer Liste
      */
-    public function getRandom(): Optional
+    public function getRandom(): Option
     {
         return $this->isEmpty()
-            ? Optional::empty()
-            : Optional::of($this->elements[mt_rand(0, $this->count() - 1)]);
+            ? None::create()
+            : new Some($this->elements[mt_rand(0, $this->count() - 1)]);
     }
 
     /**
